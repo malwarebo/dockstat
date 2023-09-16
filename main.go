@@ -30,7 +30,7 @@ func main() {
 
 	for _, container := range containers {
 		containerID := container.ID[:10]
-		containerName := truncateString(container.Names[0], nameColumnWidth)
+		containerName := format(container.Names[0], nameColumnWidth)
 		containerStatus := container.Status
 
 		// Check if the container is running or stopped and apply the color accordingly
@@ -48,11 +48,4 @@ func main() {
 	}
 
 	fmt.Println(strings.Repeat("-", 118))
-}
-
-func truncateString(s string, length int) string {
-	if len(s) > length {
-		return s[:length]
-	}
-	return s + strings.Repeat(" ", length-len(s))
 }
