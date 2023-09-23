@@ -25,6 +25,10 @@ func main() {
 		log.Fatal(err)
 	}
 
+	if len(containers) == 0 {
+		log.Fatalf("No running containers found")
+	}
+
 	fmt.Println(color.YellowString("| %-13s | %-80s | %-20s |", "ID", "Name", "Status"))
 	fmt.Println(strings.Repeat("-", 118))
 
@@ -46,6 +50,4 @@ func main() {
 		statusColor.Printf("%-20s", containerStatus)
 		fmt.Println(" |")
 	}
-
-	fmt.Println(strings.Repeat("-", 118))
 }
