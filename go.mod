@@ -3,7 +3,7 @@ module dockstat
 go 1.20
 
 require (
-	github.com/docker/docker v24.0.6+incompatible
+	github.com/docker/docker v24.0.7+incompatible
 	github.com/fatih/color v1.15.0
 )
 
