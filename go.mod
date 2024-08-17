@@ -1,6 +1,6 @@
 module dockstat
 
-go 1.20
+go 1.23
 
 require (
 	github.com/docker/docker v26.0.0+incompatible
