@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/docker/docker v24.0.9+incompatible
-	github.com/fatih/color v1.16.0
+	github.com/fatih/color v1.17.0
 )
 
 require (
