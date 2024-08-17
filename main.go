@@ -6,7 +6,7 @@ import (
 	"log"
 	"strings"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
 	"github.com/fatih/color"
 )
@@ -20,7 +20,7 @@ func main() {
 	}
 
 	ctx := context.Background()
-	containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
+	containers, err := cli.ContainerList(ctx, container.ListOptions{})
 	if err != nil {
 		log.Fatal(err)
 	}
