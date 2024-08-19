@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/docker/docker v26.0.0+incompatible
-	github.com/fatih/color v1.16.0
+	github.com/fatih/color v1.17.0
 )
 
 require (
@@ -33,7 +33,7 @@ require (
 	go.opentelemetry.io/otel/trace v1.24.0 // indirect
 	golang.org/x/mod v0.8.0 // indirect
 	golang.org/x/net v0.19.0 // indirect
-	golang.org/x/sys v0.17.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	golang.org/x/tools v0.6.0 // indirect
 	gotest.tools/v3 v3.5.0 // indirect
