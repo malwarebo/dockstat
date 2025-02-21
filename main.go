@@ -4,50 +4,111 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"strings"
 
-	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/stdcopy"
 	"github.com/fatih/color"
 )
 
 const nameColumnWidth = 80
 
 func main() {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
-	if err != nil {
-		log.Fatal(err)
-	}
+    // Initialize Docker client
+    cli, err := client.NewClientWithOpts(client.FromEnv)
+    if err != nil {
+        log.Fatal(err)
+    }
+    ctx := context.Background()
 
-	ctx := context.Background()
-	containers, err := cli.ContainerList(ctx, container.ListOptions{})
-	if err != nil {
-		log.Fatal(err)
-	}
+    // Parse command-line arguments
+    if len(os.Args) == 1 {
+        listContainers(cli, ctx)
+    } else if len(os.Args) == 3 {
+        switch os.Args[1] {
+        case "kill":
+            killContainer(cli, ctx, os.Args[2])
+        case "log":
+            showLogs(cli, ctx, os.Args[2])
+        default:
+            printUsage()
+        }
+    } else {
+        printUsage()
+    }
+}
 
-	if len(containers) == 0 {
-		log.Fatalf("No running containers found")
-	}
+func listContainers(cli *client.Client, ctx context.Context) {
+    containers, err := cli.ContainerList(ctx, types.ContainerListOptions{})
+    if err != nil {
+        log.Fatal(err)
+    }
 
-	fmt.Println(color.YellowString("| %-13s | %-80s | %-20s |", "ID", "Name", "Status"))
-	fmt.Println(strings.Repeat("-", 118))
+    if len(containers) == 0 {
+        fmt.Println("No running containers found")
+        return
+    }
 
-	for _, container := range containers {
-		containerID := container.ID[:10]
-		containerName := format(container.Names[0], nameColumnWidth)
-		containerStatus := container.Status
+    fmt.Println(color.YellowString("| %-13s | %-80s | %-20s |", "ID", "Name", "Status"))
+    fmt.Println(strings.Repeat("-", 118))
 
-		// Check if the container is running or stopped and apply the color accordingly
-		var statusColor *color.Color
-		if container.State == "running" {
-			statusColor = color.New(color.FgGreen)
-		} else {
-			statusColor = color.New(color.FgRed)
-		}
+    for _, container := range containers {
+        containerID := container.ID[:10]
+        containerName := format(strings.TrimPrefix(container.Names[0], "/"), nameColumnWidth)
+        containerStatus := container.Status
 
-		// Print the colored output in a table-like format
-		fmt.Printf("| %-13s | %-80s | ", containerID, containerName)
-		statusColor.Printf("%-20s", containerStatus)
-		fmt.Println(" |")
-	}
+        var statusColor *color.Color
+        if container.State == "running" {
+            statusColor = color.New(color.FgGreen)
+        } else {
+            statusColor = color.New(color.FgRed)
+        }
+
+        fmt.Printf("| %-13s | %-80s | ", containerID, containerName)
+        statusColor.Printf("%-20s", containerStatus)
+        fmt.Println(" |")
+    }
+}
+
+func killContainer(cli *client.Client, ctx context.Context, containerID string) {
+    err := cli.ContainerKill(ctx, containerID, "SIGKILL")
+    if err != nil {
+        log.Fatalf("Error killing container %s: %v", containerID, err)
+    }
+    fmt.Printf("Container %s killed\n", containerID)
+}
+
+func showLogs(cli *client.Client, ctx context.Context, containerID string) {
+    // Use types.ContainerLogsOptions explicitly
+    options := types.ContainerLogsOptions{
+        ShowStdout: true,
+        ShowStderr: true,
+        Follow:     false,
+    }
+    logs, err := cli.ContainerLogs(ctx, containerID, options)
+    if err != nil {
+        log.Fatalf("Error getting logs for container %s: %v", containerID, err)
+    }
+    defer logs.Close()
+
+    _, err = stdcopy.StdCopy(os.Stdout, os.Stderr, logs)
+    if err != nil {
+        log.Fatalf("Error reading logs: %v", err)
+    }
+}
+
+func printUsage() {
+    fmt.Println("Usage:")
+    fmt.Println("  dockstat          : list running containers")
+    fmt.Println("  dockstat kill <container_id> : kill a running container")
+    fmt.Println("  dockstat log <container_id>  : show logs of a container")
+}
+
+func format(s string, length int) string {
+    if len(s) > length {
+        return s[:length]
+    }
+    return s + strings.Repeat(" ", length-len(s))
 }

@@ -1,6 +1,6 @@
 # dockstat
 
-Simple docker container status cli tool
+Simple docker container management cli tool
 
 |         ID        |      Name       |       Status        |
 | :---------------- | :-------------: | ------------------: |
@@ -24,8 +24,9 @@ sudo make install
 
 Run the command `dockstat` from anywhere in the terminal.
 
-### Run
-
 ```bash
-dockstat
+Usage:
+  dockstat          : list running containers
+  dockstat kill <container_id> : kill a running container
+  dockstat log <container_id>  : show logs of a container
 ```
