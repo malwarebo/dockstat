@@ -4,9 +4,10 @@ GOBUILD := $(GOCMD) build
 GOINSTALL := $(GOCMD) install
 GOCLEAN := $(GOCMD) clean
 GOGET := $(GOCMD) get
+GOTEST := $(GOCMD) test
 
 # Binary name
-BINARY_NAME := dockstat
+BINARY_NAME := dck
 
 all: build
 
@@ -20,4 +21,7 @@ clean:
 	$(GOCLEAN)
 	rm -f $(BINARY_NAME)
 
-.PHONY: all build install clean
+test:
+	$(GOTEST) -v ./...
+
+.PHONY: all build install clean test
